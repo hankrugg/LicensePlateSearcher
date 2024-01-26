@@ -14,46 +14,43 @@ class Search:
         self.searching = True
         self.reader = Reader(filepath)
 
-    def searchByPrefix(self):
-            prefix = input("Enter the prefix you want to search or press 'x' to quit.")
+    def searchByPrefix(self, prefix):
             try:
                 if int(prefix) > 0 and int(prefix) < 57:
                     plate = LicensePlate(self.reader.records[prefix][0], self.reader.records[prefix][1], prefix)
-                    print(plate)
+                    return (plate)
                 elif prefix == 'x':
                     sys.exit()
                 else:
-                    print("That is not a county prefix")
+                    return "That is not a county prefix"
             except:
                 if prefix == 'x':
                     sys.exit()
                 else:
-                    print("That is not a county prefix")
+                    return "That is not a county prefix"
 
-    def searchByCounty(self):
-        county = input("Enter the county you want to search or press 'x' to quit.").lower()
+    def searchByCounty(self, county):
         prefix = None
         for record in self.reader.records:
-            if self.reader.records[record][0].lower() == county:
+            if self.reader.records[record][0].lower() == county.lower():
                 prefix = record
         if prefix == None:
-            print("That is not a county.")
+            return "That is not a county."
         else:
             plate = LicensePlate(self.reader.records[prefix][0], self.reader.records[prefix][1], prefix)
-            print(plate)
+            return plate
 
-    def searchByCountySeat(self):
-        countySeat = input("Enter the county seat you want to search or press 'x' to quit.").lower()
+    def searchByCountySeat(self, countySeat):
         prefix = None
         for record in self.reader.records:
             # print(self.reader.records[record][0])
-            if self.reader.records[record][1].lower() == countySeat:
+            if self.reader.records[record][1].lower() == countySeat.lower():
                 prefix = record
         if prefix == None:
-            print("That is not a county seat.")
+            return "That is not a county seat."
         else:
             plate = LicensePlate(self.reader.records[prefix][0], self.reader.records[prefix][1], prefix)
-            print(plate)
+            return plate
 
 
 
@@ -62,10 +59,13 @@ if __name__ == '__main__':
     while search.searching:
         choice = input("Press 1 to search by prefix, 2 to search by county, 3 to search by county seat")
         if choice == '1':
-            search.searchByPrefix()
+            prefix = input("Enter the county prefix you want to search for.")
+            print(search.searchByPrefix(prefix))
         elif choice == '2':
-            search.searchByCounty()
+            county = input("Enter the county you want to search for.")
+            print(search.searchByCounty(county))
         elif choice == '3':
-            search.searchByCountySeat()
+            countySeat = input("Enter the county seat you want to search for.")
+            print(search.searchByCountySeat(countySeat))
         else:
             print("Invalid Choice")
