@@ -21,32 +21,46 @@ class Gui(tk.Tk):
 
     def menu(self):
         self.choice = tk.Entry(self, width=20)
-        self.choice.place(x=250, y=100)
+        self.choice.place(x=250, y=50)
         # place all the buttons on the gui
         prefix = tk.Button(self, text='Prefix', command=self.searchByPrefix)
-        prefix.place(x=200, y=50)
+        prefix.place(x=200, y=100)
 
         county = tk.Button(self, text='County', command=self.searchByCounty)
-        county.place(x=300, y=50)
+        county.place(x=300, y=100)
 
         countySeat = tk.Button(self, text='County Seat', command=self.searchByCountySeat)
-        countySeat.place(x=400, y=50)
+        countySeat.place(x=400, y=100)
+
+        # place the instructions on the gui
+        self.instructions()
+
+    def instructions(self):
+        # make the instructions
+        self.canvas.create_text(200, 65, text="input:")
+        self.canvas.create_text(320, 25,
+                                text="Enter a county prefix, county, or county seat and click the button you want to search by.")
 
     def searchByPrefix(self):
+        # gui method to call the search by prefix and implement it on the gui
         self.canvas.delete('all')
         string = str(self.search.searchByPrefix(self.choice.get()))
         self.canvas.create_text(325, 150, text=string, fill='black')
+        self.instructions()
 
     def searchByCounty(self):
+        # gui method to call the search by county and implement it on the gui
         self.canvas.delete('all')
         string = str(self.search.searchByCounty(self.choice.get()))
         self.canvas.create_text(325, 150, text=string, fill='black')
+        self.instructions()
 
     def searchByCountySeat(self):
+        # gui method to call the search by county seat and implement it on the gui
         self.canvas.delete('all')
         string = str(self.search.searchByCountySeat(self.choice.get()))
         self.canvas.create_text(325, 150, text=string, fill='black')
-
+        self.instructions()
 
 
 if __name__ == '__main__':
