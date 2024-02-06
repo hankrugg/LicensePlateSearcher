@@ -4,75 +4,69 @@ Search.py
 
 Created by Hank Rugg on January 25, 2024
 
-Text based version of the county search algorithm.
-Running this program will allow you to interact through the console.
-This class is used
+Provides functions to be used in Gui.py
 '''
-import sys
 
-from Reader import Reader
+import csv
+
 from LicensePlate import LicensePlate
+from Reader import Reader
 
 
 class Search:
-    def __init__(self, filepath):
+    def __init__(self, filepath, extraFile):
         self.searching = True
-        self.reader = Reader(filepath)
+        self.reader = Reader(filepath, extraFile)
 
-    def searchByPrefix(self, prefix):
-        # check to make sure that is a valid prefix
-        if prefix in list(self.reader.records.keys()):
-            # if it is valid, make a license plate and return it
-            plate = LicensePlate(self.reader.records[prefix][0], self.reader.records[prefix][1], prefix)
+    # used to check if the choice in is the 56 counties in some form
+    def checkInput(self, choice):
+        choice = choice.lower()
+        if choice in self.reader.records.keys():
+            return True
+        return False
+
+    # used to check if the choice in is the extra counties
+    def checkCityInput(self, choice):
+        choice = choice.lower()
+        if choice in self.reader.extraRecords.keys():
+            return True
+        return False
+
+    # adds the city to the .csv file for future use
+    def setCityInRecords(self, city, choice):
+        choice = choice.lower()
+        city = city.lower()
+        self.reader.extraRecords[city] = self.reader.records[choice]
+        with open('extra.csv', 'a+', newline='') as csvfile:
+            # storing the county, the city in that county they added, and the license prefix
+            fieldnames = ['County', 'County City', 'License Plate Prefix']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            # write to the file
+            writer.writerow({'County': self.reader.records[choice][0], 'County City': city,
+                             'License Plate Prefix': self.reader.records[choice][2]})
+            # used with open() so no need to close the file
+
+    # search through the 56 counties
+    def searchByInput(self, choice):
+        choice = choice.lower()
+        if self.checkInput(choice):
+            plate = LicensePlate(self.reader.records[choice][0], self.reader.records[choice][1],
+                                 self.reader.records[choice][2])
             return plate
-        return "That is not a county prefix."
-
-    def searchByCounty(self, county):
-        prefix = None
-        # look through values to see if county name is valid
-        for record in self.reader.records:
-            if self.reader.records[record][0].lower() == county.lower():
-                # set the index to the prefix
-                prefix = record
-        if prefix == None:
-            # if it isnt valid, bail
-            return "That is not a county."
         else:
-            # make a license plate and return it
-            plate = LicensePlate(self.reader.records[prefix][0], self.reader.records[prefix][1], prefix)
+            return 'No results found!'
+
+    # search through the cities in the extra file
+    def searchByCity(self, city):
+        self.reader.loadExtraFile()
+        city = city.lower()
+        if self.checkCityInput(city):
+            # get the county from the extra records
+            county = self.reader.extraRecords[city][0].lower()
+            # fetch the license plate associated with that county via the city
+            plate = LicensePlate(self.reader.records[county][0], self.reader.records[county][1],
+                                 self.reader.records[county][2])
             return plate
-
-    def searchByCountySeat(self, countySeat):
-        prefix = None
-        # look through values to see if county seat name is valid
-        for record in self.reader.records:
-            if self.reader.records[record][1].lower() == countySeat.lower():
-                # set the index to the prefix
-                prefix = record
-        if prefix == None:
-            # if it isnt valid, bail
-            return "That is not a county seat."
         else:
-            # make a license plate and return it
-            plate = LicensePlate(self.reader.records[prefix][0], self.reader.records[prefix][1], prefix)
-            return plate
+            return 'No results found, try adding below!'
 
-
-if __name__ == '__main__':
-    search = Search("MontanaCounties.csv")
-    # get choice and print search results
-    while search.searching:
-        choice = input("Press 1 to search by prefix, 2 to search by county, 3 to search by county seat, x to quit")
-        if choice == '1':
-            prefix = input("Enter the county prefix you want to search for.")
-            print(search.searchByPrefix(prefix))
-        elif choice == '2':
-            county = input("Enter the county you want to search for.")
-            print(search.searchByCounty(county))
-        elif choice == '3':
-            countySeat = input("Enter the county seat you want to search for.")
-            print(search.searchByCountySeat(countySeat))
-        elif choice == 'x':
-            sys.exit()
-        else:
-            print("Invalid Choice")
